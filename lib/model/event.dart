@@ -10,6 +10,6 @@ class Event {
     required this.description,
     required this.from,
     required this.to,
-    this.isAllDay: false, // Add this line to define the named parameter
+    this.isAllDay = false, // Add this line to define the named parameter
   });
 }

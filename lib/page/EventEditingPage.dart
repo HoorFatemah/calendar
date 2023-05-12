@@ -40,6 +40,7 @@ class _EventEditingPagesState extends State<EventEditingPage> {
 
   @override
   void dispose() {
+    super.dispose();
     titleController.dispose();
   }
 
@@ -225,15 +226,14 @@ class _EventEditingPagesState extends State<EventEditingPage> {
         isAllDay: false,
       );
       final isEditing = widget.event != null;
-      final provider = Provider.of<EventProvider>(context, listen: true);
-      provider.addEvent(event);
+      final provider = Provider.of<EventProvider>(context, listen: false);
+      //provider.addEvent(event);
       if (isEditing) {
         provider.editEvent(event, widget.event!);
         Navigator.of(context).pop();
       } else {
         provider.addEvent(event);
       }
-      var a = 5;
       // Remove the current screen from the stack and return to the previous screen
       Navigator.pop(context);
     }
