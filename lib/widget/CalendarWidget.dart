@@ -13,104 +13,153 @@ class CalendarWidget extends StatefulWidget {
 
 class _CalendarWidgetState extends State<CalendarWidget> {
   late SfCalendar _calendar;
-  CalendarView _calendarView = CalendarView.day;
+  final CalendarView _calendarView = CalendarView.day;
+  TextEditingController _textEditingController = TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-    _calendar = SfCalendar(
-      view: _calendarView,
-      showCurrentTimeIndicator: true,
-      dataSource: MeetingDataSource(_getDataSource()),
-      monthViewSettings: MonthViewSettings(
-        appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
-      ),
-    );
-  }
+  final Map<DateTime, String> _slotTextMap = {};
+  List<Meeting> meetings = [];
+
+  final List<DateTime> _startTimes = [
+    DateTime(2023, 5, 25, 9, 0, 0),
+    DateTime(2023, 5, 25, 11, 0, 0),
+    DateTime(2023, 5, 25, 13, 0, 0),
+    // DateTime(2023, 5, 25, 15, 0, 0),
+  ];
+
+  final List<DateTime> _endTimes = [
+    DateTime(2023, 5, 25, 11, 0, 0),
+    DateTime(2023, 5, 25, 13, 0, 0),
+    DateTime(2023, 5, 25, 15, 0, 0),
+    // DateTime(2023, 5, 25, 17, 0, 0),
+  ];
+
+  final List<String> _courses = [
+    'Artificial Intelligence',
+    'Data structure and algorithm',
+    'Data Science',
+    // 'Database',
+  ];
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   // _calendar = ;
+  // }
 
   @override
   Widget build(BuildContext context) {
     final events = Provider.of<EventProvider>(context).events;
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Calendar'),
+      appBar: AppBar(
+        title: Text('Calendar'),
+      ),
+      body: SfCalendar(
+        view: _calendarView,
+        showCurrentTimeIndicator: true,
+        dataSource: MeetingDataSource(_getDataSource()),
+        monthViewSettings: const MonthViewSettings(
+          appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
         ),
-        body: _calendar
-        // body: SfCalendar(
-        //   view: CalendarView.day,
-        //   dataSource: EventDataSource(events),
-        //   initialSelectedDate: DateTime.now(),
-        //   onLongPress: (details) {
-        //     final provider = Provider.of<EventProvider>(context, listen: true);
+        onLongPress: (CalendarLongPressDetails details) {
+          // print('id: ${details.targetElement.name}');
 
-        //     provider.setDate(details.date!);
-        //     showModalBottomSheet(
-        //       context: context,
-        //       builder: (context) => TasksWidget(),
-        //     );
-        //   },
-        // ),
-        );
+          // print("index: ${details.date}");
+
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              // String? slotText;
+              // if (details.date != null) {
+              //   slotText = _slotTextMap[details.date!];
+              //   Center(
+              //     child: Text(slotText ??
+              //         ''), // Display the slot text, or an empty string if it is null
+              //   );
+              // }
+
+              // Get any existing text for the slot
+              return AlertDialog(
+                title: Text('Add text to slot'),
+                content: TextField(
+                  decoration: InputDecoration(hintText: 'Enter text here'),
+                  controller: _textEditingController, // Use the text controller
+                  // onChanged: (value) {
+                  //   setState(() {
+                  //     // _slotTextMap[details.date!] = value;
+
+                  //   });
+                  // },
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Cancel'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      // String enteredText =
+                      //     _textEditingController.text; // Get the entered text
+                      // setState(() {
+                      //   _slotTextMap[details.date!] =
+                      //       enteredText; // Save the text to your data source
+                      //   slotText =
+                      //       enteredText; // Update the displayed text in the slot
+                      // });
+                      // print(_textEditingController.text);
+                      // meetings[details.targetElement.index].eventName =
+                      //     _textEditingController.text;
+                      setState(() {
+                        // for (var d in ) {
+                        //   _startTimes = details.date
+                        // }
+                        Meeting a = details.appointments![0];
+                        print("index: ${a.m_id}");
+
+                        _courses[a.m_id] = _textEditingController.text;
+                      });
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Save'),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      ),
+      // body: SfCalendar(
+      //   view: CalendarView.day,
+      //   dataSource: EventDataSource(events),
+      //   initialSelectedDate: DateTime.now(),
+      //   onLongPress: (details) {
+      //     final provider = Provider.of<EventProvider>(context, listen: true);
+
+      //     provider.setDate(details.date!);
+      //     showModalBottomSheet(
+      //       context: context,
+      //       builder: (context) => TasksWidget(),
+      //     );
+      //   },
+      // ),
+    );
   }
-}
 
-List<Meeting> _getDataSource() {
-  final List<Meeting> meetings = <Meeting>[];
-  final DateTime today = DateTime.now();
-
-  // Create and add Meeting object for slot 1
-  final DateTime slot1StartTime =
-      DateTime(today.year, today.month, today.day, 9, 0, 0);
-  final DateTime slot1EndTime =
-      DateTime(today.year, today.month, today.day, 11, 0, 0);
-  meetings.add(Meeting(
-    'Artificial Intelligence',
-    slot1StartTime,
-    slot1EndTime,
-    Color.fromARGB(255, 122, 134, 15),
-    false,
-  ));
-
-  // Create and add Meeting object for slot 2
-  final DateTime slot2StartTime =
-      DateTime(today.year, today.month, today.day, 11, 0, 0);
-  final DateTime slot2EndTime =
-      DateTime(today.year, today.month, today.day, 13, 0, 0);
-  meetings.add(Meeting(
-    'Data structure and algorithm',
-    slot2StartTime,
-    slot2EndTime,
-    Color.fromARGB(255, 82, 134, 15),
-    false,
-  ));
-
-  // Create and add Meeting object for slot 3
-  final DateTime slot3StartTime =
-      DateTime(today.year, today.month, today.day, 13, 0, 0);
-  final DateTime slot3EndTime =
-      DateTime(today.year, today.month, today.day, 15, 0, 0);
-  meetings.add(Meeting(
-    'Data Science',
-    slot3StartTime,
-    slot3EndTime,
-    Color.fromARGB(255, 15, 134, 78),
-    false,
-  ));
-
-  // Create and add Meeting object for slot 4
-  final DateTime slot4StartTime =
-      DateTime(today.year, today.month, today.day, 15, 0, 0);
-  final DateTime slot4EndTime =
-      DateTime(today.year, today.month, today.day, 17, 0, 0);
-  meetings.add(Meeting(
-    'Database',
-    slot4StartTime,
-    slot4EndTime,
-    Color.fromARGB(255, 226, 127, 33),
-    false,
-  ));
-
-  return meetings;
+  List<Meeting> _getDataSource() {
+    meetings = [];
+    for (int i = 0; i < _startTimes.length; i++) {
+      meetings.add(Meeting(
+        i,
+        _courses[i],
+        _startTimes[i],
+        _endTimes[i],
+        Color.fromARGB(255, i * 50, 255 - i * 50, 0),
+        false,
+      ));
+    }
+    return meetings;
+  }
 }
 
 class MeetingDataSource extends CalendarDataSource {
@@ -144,8 +193,10 @@ class MeetingDataSource extends CalendarDataSource {
 }
 
 class Meeting {
-  Meeting(this.eventName, this.from, this.to, this.background, this.isAllDay);
+  Meeting(this.m_id, this.eventName, this.from, this.to, this.background,
+      this.isAllDay);
 
+  int m_id;
   String eventName;
   DateTime from;
   DateTime to;
